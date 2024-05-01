@@ -1,13 +1,11 @@
 package iise_capston.imgcloud.service;
 
-import iise_capston.imgcloud.ImgcloudApplication;
 import iise_capston.imgcloud.member.OauthMember;
 import iise_capston.imgcloud.oauth.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
