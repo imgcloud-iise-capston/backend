@@ -43,6 +43,8 @@ dependencies {
 	// FOR @ConfigurationProperties
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
+	//brisque.jar
+	//implementation files(dir:'libs/libsvm.jar', include:'*')
 }
 
 tasks.named('compileJava') {
