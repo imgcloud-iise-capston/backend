@@ -1,1 +1,5 @@
 application.properties
+checksums.lock
+opencv_world451d.dll
+build/
+build/libs/build/x64/vc15/bin/opencv_world451d.dll
