@@ -35,7 +35,7 @@ public class BrisqueService {
         byte[]data = picture.getBytes();
         ByteBuffer dataByte = ByteBuffer.wrap(data);
 
-        Mat pic = opencv_imgcodecs.imdecode(new Mat(new BytePointer(dataByte)),opencv_imgcodecs.IMWRITE_JPEG_SAMPLING_FACTOR);
+        Mat pic = opencv_imgcodecs.imdecode(new Mat(new BytePointer(dataByte)),opencv_imgcodecs.IMREAD_ANYCOLOR);
 
         QualityBRISQUE brisque = QualityBRISQUE.create(modelPath,rangePath);
         Scalar brisqueScore = brisque.compute(pic);
@@ -54,3 +54,4 @@ public class BrisqueService {
         return brisqueScores;
     }
 }
+
