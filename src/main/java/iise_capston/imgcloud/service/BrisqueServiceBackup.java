@@ -7,8 +7,15 @@ import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.math3.special.Gamma;
 
+<<<<<<< HEAD
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
+=======
+import nu.pattern.OpenCV;
+import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgcodecs.*;
+>>>>>>> 86cc70295e9e9daa4b60b613ec2eea6cf61a4cf7
 
 import org.opencv.imgproc.Imgproc;
 import org.slf4j.Logger;
@@ -16,6 +23,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+<<<<<<< HEAD
+=======
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.BufferedReader;
+import java.io.File;
+>>>>>>> 86cc70295e9e9daa4b60b613ec2eea6cf61a4cf7
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +38,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+<<<<<<< HEAD
 public class BrisqueServiceBackup {
     private Logger logger = LoggerFactory.getLogger(BrisqueServiceBackup.class);
+=======
+public class BrisqueService {
+    private Logger logger = LoggerFactory.getLogger(BrisqueService.class);
+>>>>>>> 86cc70295e9e9daa4b60b613ec2eea6cf61a4cf7
 
 
     public double test_measure_BRISQUE(MultipartFile multiImg) throws IOException {

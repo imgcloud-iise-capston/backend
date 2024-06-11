@@ -54,3 +54,7 @@ public class BrisqueService {
         return brisqueScores;
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 86cc70295e9e9daa4b60b613ec2eea6cf61a4cf7
