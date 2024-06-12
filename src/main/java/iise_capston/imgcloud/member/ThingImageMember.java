@@ -5,15 +5,15 @@ import lombok.RequiredArgsConstructor;
 
 @Entity
 @RequiredArgsConstructor
-@Table(name = "PeopleImage")
-public class PeopleImageMember {
+@Table(name = "ThingImage")
+public class ThingImageMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long peopleId;
+    private Long thingId;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    private OauthMember userPeopleId;
+    private OauthMember userThingId;
 
     @Column
     private String ImageKey;

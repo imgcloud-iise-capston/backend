@@ -19,7 +19,7 @@ public record NaverMemberResponse(
                 .oauthId(new OauthId(NAVER))
                 .nickname(response.nickname)
                 .email(response.email)
-                .picture(response.profileImageUrl)
+                .profile(response.profileImageUrl)
                 .build();
     }
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)

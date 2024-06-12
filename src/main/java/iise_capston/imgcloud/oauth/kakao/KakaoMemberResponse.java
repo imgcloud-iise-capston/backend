@@ -21,7 +21,7 @@ public record KakaoMemberResponse(
                 .oauthId(new OauthId(KAKAO))
                 .nickname(kakaoAccount.profile.nickname)
                 .email(kakaoAccount.email)
-                .picture(kakaoAccount.profile.profileImageUrl)
+                .profile(kakaoAccount.profile.profileImageUrl)
                 .build();
     }
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
