@@ -1,9 +1,13 @@
 package iise_capston.imgcloud.member;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @RequiredArgsConstructor
 @Table(name = "Brisque",uniqueConstraints = {@UniqueConstraint(name = "brisque_unique",columnNames = {"brisque_id"})})
 public class BrisqueMember {
@@ -12,11 +16,11 @@ public class BrisqueMember {
     private long brisqueId;
 
     @OneToOne
-    @JoinColumn(name = "peopleId", nullable = false)
+    @JoinColumn(name = "peopleId")
     private PeopleImageMember peopleId;
 
     @OneToOne
-    @JoinColumn(name = "thingId", nullable = false)
+    @JoinColumn(name = "thingId")
     private ThingImageMember thingId;
 
     @Column

@@ -1,9 +1,13 @@
 package iise_capston.imgcloud.member;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @RequiredArgsConstructor
 @Table(name = "PeopleImage")
 public class PeopleImageMember {
@@ -16,23 +20,41 @@ public class PeopleImageMember {
     private OauthMember userPeopleId;
 
     @Column
-    private String ImageKey;
+    private String imageKey;
+
+    @Column
+    private String imageUrl;
 
     @Column
     private String smallImageKey;
 
     @Column
-    private double totalScore;
+    private String smallImageUrl;
 
-    @Column
-    private double metaScore;
-
-    @Column
-    private double brisqueScore;
+//    @Column
+//    private double totalScore;
+//
+//    @Column
+//    private double metaScore;
+//
+//    @Column
+//    private double brisqueScore;
 
     @Column
     private String imageTitle;
 
     @Column
-    private String coordinate;
+    private double x;
+
+    @Column
+    private double y;
+
+    @Column
+    private double width;
+
+    @Column
+    private double height;
+
+    @Column
+    private String fileType;
 }

@@ -1,77 +1,88 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.4'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.4'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'iise_capston'
 version = '0.0.1-SNAPSHOT'
 
 springBoot {
-	mainClass = 'src.main.java.iise_capston.imgcloud.imgcloudApplication'
+    mainClass = 'src.main.java.iise_capston.imgcloud.imgcloudApplication'
 }
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = '17'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	//jwt token
+    //jwt token
 //	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 //	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 //	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	// Http Interface
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	// FOR @ConfigurationProperties
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // Http Interface
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // FOR @ConfigurationProperties
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-	//open cv
-	implementation 'org.openpnp:opencv:4.5.1-2'
+    //open cv
+    implementation 'org.openpnp:opencv:4.5.1-2'
 
 
-	//apache math
-	implementation 'org.apache.commons:commons-math3:3.6.1'
+    //apache math
+    implementation 'org.apache.commons:commons-math3:3.6.1'
 
-	//quality brisque
-	implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.5.10'
-	implementation group: 'org.bytedeco', name: 'opencv-platform', version: '4.9.0-1.5.10'
+    //quality brisque
+    implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.5.10'
+    implementation group: 'org.bytedeco', name: 'opencv-platform', version: '4.9.0-1.5.10'
 
-	implementation group: 'org.openpnp', name: 'opencv', version: '4.5.1-2'
+    implementation group: 'org.openpnp', name: 'opencv', version: '4.5.1-2'
 
-	//apache math
-	implementation 'org.apache.commons:commons-math3:3.6.1'
+    //apache math
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+
+    // Spring Boot Starter Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Spring Test dependency
+    implementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //aws s3
+    implementation platform('software.amazon.awssdk:bom:2.17.53')
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 }
 
 tasks.named('compileJava') {
-	inputs.files(tasks.named('processResources'))
+    inputs.files(tasks.named('processResources'))
 }
 
 
 ext {
-	opencvDir = System.getenv("OPENCV_DIR")
+    opencvDir = System.getenv("OPENCV_DIR")
 }
 task copyOpenCVLibs(type: Copy) {
-	from fileTree(dir: opencvDir, include: '**/*.dll') // 윈도우의 경우 DLL 파일을 복사
-	into "$buildDir/libs" // 라이브러리를 프로젝트 빌드 경로로 복사
+    from fileTree(dir: opencvDir, include: '**/*.dll') // 윈도우의 경우 DLL 파일을 복사
+    into "$buildDir/libs" // 라이브러리를 프로젝트 빌드 경로로 복사
 }
 compileJava.dependsOn copyOpenCVLibs
+
 

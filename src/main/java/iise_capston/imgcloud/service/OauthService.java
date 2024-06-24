@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class OauthService {
@@ -31,5 +33,15 @@ public class OauthService {
                 .orElseGet(()-> oauthMemberRepository.save(oauthMember));
 
         return saved;
+    }
+
+    public OauthMember findUploadUser(Long userId){
+        Optional<OauthMember> optionalOauthMember = oauthMemberRepository.findById(userId);
+        if (optionalOauthMember.isPresent()) {
+            OauthMember oauthMember = optionalOauthMember.get();
+            return oauthMember;
+        } else {
+            return null;
+        }
     }
 }
