@@ -1,6 +1,7 @@
 package iise_capston.imgcloud.member;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@Data
 @Table(name = "ThingImage")
 public class ThingImageMember {
     @Id
@@ -30,15 +32,6 @@ public class ThingImageMember {
 
     @Column
     private String smallImageUrl;
-
-//    @Column
-//    private double totalScore;
-//
-//    @Column
-//    private double metaScore;
-//
-//    @Column
-//    private double brisqueScore;
 
     @Column
     private String imageTitle;

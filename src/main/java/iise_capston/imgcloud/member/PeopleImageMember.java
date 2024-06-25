@@ -31,15 +31,6 @@ public class PeopleImageMember {
     @Column
     private String smallImageUrl;
 
-//    @Column
-//    private double totalScore;
-//
-//    @Column
-//    private double metaScore;
-//
-//    @Column
-//    private double brisqueScore;
-
     @Column
     private String imageTitle;
 
