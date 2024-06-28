@@ -3,14 +3,13 @@ package iise_capston.imgcloud.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import iise_capston.imgcloud.domain.dto.PeopleImageUploadDto;
+import iise_capston.imgcloud.domain.dto.PeopleMetadataDto;
 import iise_capston.imgcloud.domain.dto.ThingImageUploadDto;
-import iise_capston.imgcloud.domain.repository.BrisqueMemberRepository;
+import iise_capston.imgcloud.domain.dto.ThingMetadataDto;
 import iise_capston.imgcloud.domain.repository.PeopleImageMemberRepository;
 import iise_capston.imgcloud.domain.repository.ThingImageMemberRepository;
-import iise_capston.imgcloud.member.OauthMember;
 import iise_capston.imgcloud.member.PeopleImageMember;
 import iise_capston.imgcloud.member.ThingImageMember;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +38,7 @@ public class SmallFileService {
     private final PeopleImageMemberRepository peopleImageMemberRepository;
     private final ThingImageMemberRepository thingImageMemberRepository;
 
+    private final MetadataService metadataService;
     private Logger logger = LoggerFactory.getLogger(SmallFileService.class);
 
     public ThingImageMember findThingImage(String title){
@@ -61,18 +61,24 @@ public class SmallFileService {
     }
 
     //img 여러개 처리
-    public List<CompletableFuture<String>> uploadPeopleImages(PeopleImageUploadDto peopleImageUploadDto){
+    public List<CompletableFuture<String>> uploadPeopleImages(PeopleImageUploadDto peopleImageUploadDto, PeopleMetadataDto peopleMetadataDto){
         List<CompletableFuture<String>> resultList = new ArrayList<>();
 
         int i=0;
 
         //1개 처리 임시
         PeopleImageMember peopleImage = peopleImageUploadDto.getPeopleImageMember();
+        logger.info("height in peopleImages : " + peopleImageUploadDto.getPeopleImageMember().getHeight());
         MultipartFile big = peopleImageUploadDto.getBigImageFiles();
         MultipartFile small = peopleImageUploadDto.getSmallImageFiles().get(0);
         String title = peopleImageUploadDto.getImageTitle().get(0);
         Integer brisque = peopleImageUploadDto.getBrisqueScore().get(0);
-        CompletableFuture<String> value = uploadPeopleImage(brisque, title,big, small, peopleImage, i);
+        double x = peopleImageUploadDto.getX();
+        double y = peopleImageUploadDto.getY();
+        double width = peopleImageUploadDto.getWidth();
+        double height = peopleImageUploadDto.getHeight();
+
+        CompletableFuture<String> value = uploadPeopleImage(brisque, title,big, small, peopleImage, x, y, width, height, peopleMetadataDto);
         resultList.add(value);
 
 //        for(MultipartFile big: peopleImageUploadDto.getBigImageFiles()){
@@ -87,7 +93,7 @@ public class SmallFileService {
 
         return resultList;
     }
-    public List<CompletableFuture<String>> uploadThingImages(ThingImageUploadDto thingImageUploadDto){
+    public List<CompletableFuture<String>> uploadThingImages(ThingImageUploadDto thingImageUploadDto, ThingMetadataDto thingMetadataDto){
         List<CompletableFuture<String>> resultList = new ArrayList<>();
 
         int i=0;
@@ -97,7 +103,17 @@ public class SmallFileService {
             Integer brisque = thingImageUploadDto.getBrisqueScore().get(i);
             String title = thingImageUploadDto.getImageTitle().get(i);
 
-            CompletableFuture<String> value = uploadThingImage(brisque, title, big, small, thingImage, i);
+            Double fstop = thingMetadataDto.getFStop().get(i);
+            Integer iso = thingMetadataDto.getISO().get(i);
+            Integer exposureTime = thingMetadataDto.getExposureTime().get(i);
+            String resolution = thingMetadataDto.getResolution().get(i);
+            String realResolution = thingMetadataDto.getRealResolution().get(i);
+            String gpsLatitude = thingMetadataDto.getGPSLatitude().get(i);
+            String gpsLongitude = thingMetadataDto.getGPSLongitude().get(i);
+            String whiteBalance = thingMetadataDto.getWhiteBalance().get(i);
+
+            CompletableFuture<String> value = uploadThingImage(brisque, title, big, small, thingImage, i, fstop,iso,exposureTime,realResolution,resolution,gpsLatitude,
+                    gpsLongitude,whiteBalance);
             resultList.add(value);
             i++;
         }
@@ -108,9 +124,15 @@ public class SmallFileService {
     //img 1개
     @Transactional
     @Async
-    public CompletableFuture<String> uploadPeopleImage(Integer score, String title, MultipartFile big, MultipartFile small, PeopleImageMember image, int num){
+    public CompletableFuture<String> uploadPeopleImage(Integer score, String title, MultipartFile big, MultipartFile small, PeopleImageMember image, double x, double y,
+                                                       double width, double height, PeopleMetadataDto peopleMetadataDto){
         PeopleImageMember peopleImageMember = new PeopleImageMember();
-        peopleImageMember.setPeopleId(image.getPeopleId());
+        //peopleImageMember = peopleImageMemberRepository.findById(image.getPeopleId()).get();
+        peopleImageMember.setUserPeopleId(image.getUserPeopleId());
+        peopleImageMember.setX(x);
+        peopleImageMember.setY(y);
+        peopleImageMember.setHeight(height);
+        peopleImageMember.setWidth(width);
 
         String titleAdd = title;
         //key = 사용자 입력 title + 저장 시간 -> 이걸로 불러오기 때문에 중복을 피하기 위해서
@@ -147,8 +169,19 @@ public class SmallFileService {
 
         }
 
+        Double fstop = peopleMetadataDto.getFStop();
+        Integer iso = peopleMetadataDto.getISO();
+        Integer exposureTime = peopleMetadataDto.getExposureTime();
+        String resolution = peopleMetadataDto.getResolution();
+        String realResolution = peopleMetadataDto.getRealResolution();
+        String gpsLatitude = peopleMetadataDto.getGPSLatitude();
+        String gpsLongitude = peopleMetadataDto.getGPSLongitude();
+        String whiteBalance = peopleMetadataDto.getWhiteBalance();
+
         peopleImageMemberRepository.save(peopleImageMember);
         brisqueService.savePeopleBrisque(peopleImageMember,score);
+        metadataService.savePeopleMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
+                gpsLongitude, whiteBalance, peopleImageMember);
 
 
         return CompletableFuture.completedFuture(image.getImageUrl());
@@ -157,7 +190,9 @@ public class SmallFileService {
 
     @Transactional
     @Async
-    public CompletableFuture<String> uploadThingImage(Integer score, String title, MultipartFile big, MultipartFile small, ThingImageMember image, int num) {
+    public CompletableFuture<String> uploadThingImage(Integer score, String title, MultipartFile big, MultipartFile small, ThingImageMember image, int num,
+                                                      Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
+                                                      String gpsLongitude, String whiteBalance) {
         ThingImageMember thingImageMember = new ThingImageMember();
         thingImageMember.setUserThingId(image.getUserThingId());
 
@@ -198,6 +233,8 @@ public class SmallFileService {
 
         thingImageMemberRepository.save(thingImageMember);
         brisqueService.saveThingBrisque(thingImageMember, score);
+        metadataService.saveThingMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
+                gpsLongitude, whiteBalance, thingImageMember);
 
         return CompletableFuture.completedFuture(image.getImageUrl());
     }

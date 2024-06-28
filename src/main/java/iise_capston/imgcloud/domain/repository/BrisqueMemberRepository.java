@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface BrisqueMemberRepository extends JpaRepository<BrisqueMember,Long> {
-    Optional<BrisqueMember> findBythingImage(ThingImageMember thingImageMember);
-    Optional<BrisqueMember> findBypeopleImage(PeopleImageMember peopleImageMember);
+    Optional<BrisqueMember> findBythingId(ThingImageMember thingImageMember);
+    Optional<BrisqueMember> findBypeopleId(PeopleImageMember peopleImageMember);
 }

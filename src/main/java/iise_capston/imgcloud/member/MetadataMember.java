@@ -1,9 +1,13 @@
 package iise_capston.imgcloud.member;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @RequiredArgsConstructor
 public class MetadataMember {
     @Id
@@ -11,30 +15,36 @@ public class MetadataMember {
     private long metaDataId;
 
     @OneToOne
-    @JoinColumn(name = "peopleId", nullable = false)
+    @JoinColumn(name = "peopleId")
     private PeopleImageMember peopleId;
 
     @OneToOne
-    @JoinColumn(name = "thingId", nullable = false)
+    @JoinColumn(name = "thingId")
     private ThingImageMember thingId;
 
     @Column
     private int iso;
 
     @Column
-    private int whiteBalance;
+    private String whiteBalance;
 
     @Column
-    private String fStop;
+    private double fStop;
 
     @Column
     private int exposureTime;
 
     @Column
-    private String imageName;
+    private String gpsLatitude;
 
     @Column
-    private String gps;
+    private String gpsLongitude;
+
+    @Column
+    private String realResolution;
+
+    @Column
+    private String resolution;
 
     @Column
     private String size;

@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 public class PeopleImageUploadDto {
     private MultipartFile bigImageFiles;
-//    private List<MultipartFile bigImageFiles = new ArrayList<>();
+    //private List<MultipartFile> bigImageFiles = new ArrayList<>();
     private List<MultipartFile> smallImageFiles = new ArrayList<>();
     private PeopleImageMember peopleImageMember;
     private List<String> imageTitle = new ArrayList<>();

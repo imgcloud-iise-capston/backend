@@ -1,16 +1,17 @@
 package iise_capston.imgcloud.controller;
 
-import iise_capston.imgcloud.domain.dto.PeopleImageUploadDto;
-import iise_capston.imgcloud.domain.dto.ThingImageUploadDto;
-import iise_capston.imgcloud.domain.dto.TitleDto;
+import iise_capston.imgcloud.domain.dto.*;
+import iise_capston.imgcloud.domain.repository.PeopleImageMemberRepository;
 import iise_capston.imgcloud.member.OauthMember;
 import iise_capston.imgcloud.member.PeopleImageMember;
 import iise_capston.imgcloud.member.ThingImageMember;
 import iise_capston.imgcloud.service.BrisqueService;
+import iise_capston.imgcloud.service.MetadataService;
 import iise_capston.imgcloud.service.OauthService;
 import iise_capston.imgcloud.service.SmallFileService;
 import lombok.RequiredArgsConstructor;
 import org.bytedeco.opencv.opencv_core.Scalar;
+import org.objectweb.asm.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,10 @@ public class BrisqueController {
     private final BrisqueService brisqueService;
     private final OauthService oauthService;
     private final SmallFileService smallFileService;
+    private final MetadataService metadataService;
     private final ObjectMapper objectMapper;
+
+    private final PeopleImageMemberRepository peopleImageMemberRepository;
     Logger logger = LoggerFactory.getLogger(BrisqueController.class);
 
     //Thing 점수 cal + img 저장
@@ -47,12 +51,35 @@ public class BrisqueController {
             @RequestPart("image") List<MultipartFile> image,
             @RequestPart("smallFiles") List<MultipartFile> smallFiles,
             @RequestPart("imageTitle") String titles,
-            @RequestHeader("userId") Long userId
+            @RequestHeader("userId") Long userId,
+            @RequestPart("FStop") String FStop,
+            @RequestPart("ISO") String ISO,
+            @RequestPart("ExposureTime") String ExposureTime,
+            @RequestPart("GPSLatitude") String GPSLatitude,
+            @RequestPart("GPSLongitude") String GPSLongitude,
+            @RequestPart("RealResolution") String RealResolution,
+            @RequestPart("Resolution") String Resolution,
+            @RequestPart("WhiteBalance") String WhiteBalance
+            //@RequestPart("metadata") String metadata
     ) throws IOException {
         List<CompletableFuture<Scalar>> completablescores;
         List<Integer> finalScores = new ArrayList<>();
 
         TitleDto titleDto = objectMapper.readValue(titles,TitleDto.class);
+        //ThingMetadataDto thingMetadataDto2 = objectMapper.readValue(metadata, ThingMetadataDto.class);
+
+        logger.info("userId"+userId);
+        List<Double> FStop2 = objectMapper.readValue(FStop,new com.fasterxml.jackson.core.type.TypeReference<List<Double>>(){});
+        List<Integer> ISO2 = objectMapper.readValue(ISO,new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>(){});
+        List<Integer> ExposureTime2 = objectMapper.readValue(ExposureTime, new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>() {
+        });
+        List<String> GPSLatitude2 = objectMapper.readValue(GPSLatitude,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
+        List<String> GPSLongitude2 = objectMapper.readValue(GPSLongitude,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
+        List<String> RealResolution2 = objectMapper.readValue(RealResolution,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
+        List<String> Resolution2 = objectMapper.readValue(Resolution,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
+        List<String> WhiteBalance2 = objectMapper.readValue(WhiteBalance,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
+
+        logger.info("FSTOP!!!!! "+GPSLatitude2.get(0));
 
         List<String> title = titleDto.getTitles();
 
@@ -81,6 +108,8 @@ public class BrisqueController {
             return ResponseEntity.status(500).build();
         }
 
+
+
         //사진 저장 로직, title, key, url, user 저장 -> brisque score 저장 X -> brisque 테이블에 연결되어 있기 떄문(중복 저장 X)
         ThingImageUploadDto thingImageUploadDto = new ThingImageUploadDto();
         thingImageUploadDto.setBigImageFiles(image);
@@ -90,8 +119,19 @@ public class BrisqueController {
         thingImageUploadDto.setBrisqueScore(finalScores);
         thingImageUploadDto.setThingImageMember(InithingImageMember);
 
-        url = smallFileService.uploadThingImages(thingImageUploadDto);
+        ThingMetadataDto thingMetadataDto = new ThingMetadataDto();
+        thingMetadataDto.setISO(ISO2);
+        thingMetadataDto.setExposureTime(ExposureTime2);
+        thingMetadataDto.setResolution(Resolution2);
+        thingMetadataDto.setFStop(FStop2);
+        thingMetadataDto.setGPSLongitude(GPSLongitude2);
+        thingMetadataDto.setGPSLatitude(GPSLatitude2);
+        thingMetadataDto.setRealResolution(RealResolution2);
+        thingMetadataDto.setWhiteBalance(WhiteBalance2);
 
+
+        url = smallFileService.uploadThingImages(thingImageUploadDto, thingMetadataDto);
+        //metadataService.saveMetaData(metadataDto,thingImageUploadDto.getThingImageMember());
 
         return ResponseEntity.ok(finalScores);
     }
@@ -104,7 +144,15 @@ public class BrisqueController {
             @RequestPart("fileType") String fileType, // 파일 확장자 받기
             @RequestPart("smallFiles") List<MultipartFile> smallFiles,
             @RequestPart("imageTitle") String titles,
-            @RequestHeader("userId") Long userId
+            @RequestHeader("userId") Long userId,
+            @RequestPart("FStop") Double FStop,
+            @RequestPart("ISO") Integer ISO,
+            @RequestPart("ExposureTime") Integer ExposureTime,
+            @RequestPart("GPSLatitude") String GPSLatitude,
+            @RequestPart("GPSLongitude") String GPSLongitude,
+            @RequestPart("RealResolution") String RealResolution,
+            @RequestPart("Resolution") String Resolution,
+            @RequestPart("WhiteBalance") String WhiteBalance
     ) throws IOException{
         List<Integer> finalScores = new ArrayList<>();
 
@@ -163,10 +211,15 @@ public class BrisqueController {
             return ResponseEntity.status(500).body(null);
         }
 
+        logger.info("X : "+x);
+        logger.info("Y : "+y);
+
         List<CompletableFuture<String>> url =  new ArrayList<>();
 
         //사진 저장 로직, title, key, url, user 저장 -> brisque score 저장 안하는 게 좋을 듯
         PeopleImageUploadDto peopleImageUploadDto = new PeopleImageUploadDto();
+        PeopleImageMember peopleImageMemberSave = new PeopleImageMember();
+
         peopleImageUploadDto.setBigImageFiles(image);
         peopleImageUploadDto.setSmallImageFiles(smallFiles);
         peopleImageUploadDto.setOauthMember(uploadedUser);
@@ -177,7 +230,26 @@ public class BrisqueController {
         peopleImageUploadDto.setWidth(width);
         peopleImageUploadDto.setHeight(height);
         peopleImageUploadDto.setFileType(fileType);
-        url = smallFileService.uploadPeopleImages(peopleImageUploadDto);
+
+        PeopleMetadataDto peopleMetadataDto = new PeopleMetadataDto();
+        peopleMetadataDto.setISO(ISO);
+        peopleMetadataDto.setExposureTime(ExposureTime);
+        peopleMetadataDto.setResolution(Resolution);
+        peopleMetadataDto.setFStop(FStop);
+        peopleMetadataDto.setGPSLongitude(GPSLongitude);
+        peopleMetadataDto.setGPSLatitude(GPSLatitude);
+        peopleMetadataDto.setRealResolution(RealResolution);
+        peopleMetadataDto.setWhiteBalance(WhiteBalance);
+
+        peopleImageMemberSave.setUserPeopleId(uploadedUser);
+        peopleImageMemberRepository.save(peopleImageMemberSave);
+
+        peopleImageUploadDto.setPeopleImageMember(peopleImageMemberSave);
+
+        logger.info("height in Controller : "+peopleImageUploadDto.getPeopleImageMember().getHeight());
+
+
+        url = smallFileService.uploadPeopleImages(peopleImageUploadDto,peopleMetadataDto);
 
         return ResponseEntity.ok(finalScores);
     }

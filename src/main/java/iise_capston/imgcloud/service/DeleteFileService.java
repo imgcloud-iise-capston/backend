@@ -39,7 +39,7 @@ public class DeleteFileService {
             thingImageMemberRepository.delete(thingImageMember.get());
             amazonS3Client.deleteObject(bucketNameThing, key);
             amazonS3Client.deleteObject(bucketNameThing,smallKey);
-            Optional<BrisqueMember> brisqueMember = brisqueMemberRepository.findBythingImage(thingImageMember.get());
+            Optional<BrisqueMember> brisqueMember = brisqueMemberRepository.findBythingId(thingImageMember.get());
             if(brisqueMember.isPresent()) {
                 brisqueMemberRepository.delete(brisqueMember.get());
             }
@@ -65,7 +65,7 @@ public class DeleteFileService {
             peopleImageMemberRepository.delete(peopleImageMember.get());
             amazonS3Client.deleteObject(bucketNamePerson, key);
             amazonS3Client.deleteObject(bucketNamePerson,smallKey);
-            Optional<BrisqueMember> brisqueMember = brisqueMemberRepository.findBypeopleImage(peopleImageMember.get());
+            Optional<BrisqueMember> brisqueMember = brisqueMemberRepository.findBypeopleId(peopleImageMember.get());
             if(brisqueMember.isPresent()) {
                 brisqueMemberRepository.delete(brisqueMember.get());
             }
