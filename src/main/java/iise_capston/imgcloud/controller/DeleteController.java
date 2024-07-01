@@ -19,10 +19,9 @@ public class DeleteController {
 
     @PostMapping("/delete/thingImages")
     ResponseEntity<String> deleteThingImages(
-            @RequestParam("IdList") String idList,
+            @RequestBody IdDto idDto,
             @RequestHeader("userId") Long userId
-    )throws IOException {
-        IdDto idDto = objectMapper.readValue(idList,IdDto.class);
+    ) throws IOException {
         List<Long> id = idDto.getIdList();
         deleteFileService.deleteThingImages(id);
         return ResponseEntity.ok("deleted");
@@ -30,10 +29,9 @@ public class DeleteController {
 
     @PostMapping("/delete/peopleImages")
     ResponseEntity<String> deletePeopleImages(
-            @RequestParam("IdList") String idList,
+            @RequestBody IdDto idDto,
             @RequestHeader("userId") Long userId
-    )throws IOException {
-        IdDto idDto = objectMapper.readValue(idList,IdDto.class);
+    ) throws IOException {
         List<Long> id = idDto.getIdList();
         deleteFileService.deletePeopleImages(id);
         return ResponseEntity.ok("deleted");

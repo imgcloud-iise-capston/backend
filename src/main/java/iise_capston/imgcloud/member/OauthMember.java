@@ -1,5 +1,6 @@
 package iise_capston.imgcloud.member;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import iise_capston.imgcloud.oauth.OauthId;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,9 +33,11 @@ public class OauthMember {
     private String email;
 
     @OneToMany(mappedBy = "userPeopleId")
+    @JsonBackReference
     private List<PeopleImageMember> userPeople = new ArrayList<>();
 
     @OneToMany(mappedBy = "userThingId")
+    @JsonBackReference
     private List<ThingImageMember> userThing = new ArrayList<>();
 
     public Long userId(){

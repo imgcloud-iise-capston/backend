@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@EnableTransactionManagement
 public class ImgcloudApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImgcloudApplication.class);

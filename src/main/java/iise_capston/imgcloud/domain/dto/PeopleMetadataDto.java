@@ -20,4 +20,5 @@ public class PeopleMetadataDto {
     private String RealResolution;
     private String Resolution;
     private String WhiteBalance;
+    private String size;
 }

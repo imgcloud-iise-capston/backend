@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
 public class BrisqueService {
-    private final String modelPath = "C:/iise_capston/imgcloud2/backend/src/main/resources/brisque/brisque_model_live.yml";
-    private final String rangePath = "C:/iise_capston/imgcloud2/backend/src/main/resources/brisque/brisque_range_live.yml";
+    private final String modelPath = "src/main/resources/brisque/brisque_model_live.yml";
+    private final String rangePath = "src/main/resources/brisque/brisque_range_live.yml";
     private final BrisqueMemberRepository brisqueMemberRepository;
 
     private Logger logger = LoggerFactory.getLogger(BrisqueService.class);
@@ -72,6 +73,14 @@ public class BrisqueService {
         brisqueMember.setBrisqueScore(brisque);
         brisqueMemberRepository.save(brisqueMember);
 
+    }
+
+    public Optional<BrisqueMember> getBrisqueByPeopleImage(PeopleImageMember peopleImageMember) {
+        return brisqueMemberRepository.findBypeopleId(peopleImageMember);
+    }
+
+    public Optional<BrisqueMember> getBrisqueByThingImage(ThingImageMember thingImageMember) {
+        return brisqueMemberRepository.findBythingId(thingImageMember);
     }
 }
 

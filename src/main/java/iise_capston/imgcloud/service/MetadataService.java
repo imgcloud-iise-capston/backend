@@ -1,7 +1,5 @@
 package iise_capston.imgcloud.service;
 
-import iise_capston.imgcloud.domain.dto.PeopleMetadataDto;
-import iise_capston.imgcloud.domain.dto.ThingMetadataDto;
 import iise_capston.imgcloud.domain.repository.MetadataMemberRepository;
 import iise_capston.imgcloud.domain.repository.PeopleImageMemberRepository;
 import iise_capston.imgcloud.domain.repository.ThingImageMemberRepository;
@@ -20,7 +18,7 @@ public class MetadataService {
     private final PeopleImageMemberRepository peopleImageMemberRepository;
 
     public void saveThingMetaData(Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
-                             String gpsLongitude, String whiteBalance, ThingImageMember thingImageMember){
+                             String gpsLongitude, String whiteBalance, String size,ThingImageMember thingImageMember){
         MetadataMember metadataMember = new MetadataMember();
         metadataMember.setIso(iso);
         metadataMember.setGpsLatitude(gpsLatitude);
@@ -30,6 +28,7 @@ public class MetadataService {
         metadataMember.setResolution(resolution);
         metadataMember.setRealResolution(realResolution);
         metadataMember.setWhiteBalance(whiteBalance);
+        metadataMember.setSize(size);
 
         ThingImageMember thingSave = thingImageMemberRepository.findById(thingImageMember.getThingId()).get();
 
@@ -37,8 +36,8 @@ public class MetadataService {
 
         metadataMemberRepository.save(metadataMember);
     }
-    public void savePeopleMetaData(Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
-                             String gpsLongitude, String whiteBalance, PeopleImageMember peopleImageMember){
+    public void savePeopleMetaData(Double fstop, Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
+                                   String gpsLongitude, String whiteBalance, String size, PeopleImageMember peopleImageMember){
         MetadataMember metadataMember = new MetadataMember();
         metadataMember.setIso(iso);
         metadataMember.setGpsLatitude(gpsLatitude);
@@ -48,6 +47,7 @@ public class MetadataService {
         metadataMember.setResolution(resolution);
         metadataMember.setRealResolution(realResolution);
         metadataMember.setWhiteBalance(whiteBalance);
+        metadataMember.setSize(size);
 
         PeopleImageMember peopleImage = peopleImageMemberRepository.findById(peopleImageMember.getPeopleId()).get();
 

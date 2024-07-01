@@ -1,5 +1,6 @@
 package iise_capston.imgcloud.member;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class PeopleImageMember {
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
+    @JsonBackReference
     private OauthMember userPeopleId;
 
     @Column

@@ -11,11 +11,11 @@ import iise_capston.imgcloud.service.OauthService;
 import iise_capston.imgcloud.service.SmallFileService;
 import lombok.RequiredArgsConstructor;
 import org.bytedeco.opencv.opencv_core.Scalar;
-import org.objectweb.asm.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,8 +44,6 @@ public class BrisqueController {
     private final PeopleImageMemberRepository peopleImageMemberRepository;
     Logger logger = LoggerFactory.getLogger(BrisqueController.class);
 
-    //Thing 점수 cal + img 저장
-    //title 중복이어도 ok -> key, brisque에 대한 중복 처리 완료
     @PostMapping("/calculate/brisque")
     public ResponseEntity<List<Integer>> calBrisque(
             @RequestPart("image") List<MultipartFile> image,
@@ -59,58 +57,43 @@ public class BrisqueController {
             @RequestPart("GPSLongitude") String GPSLongitude,
             @RequestPart("RealResolution") String RealResolution,
             @RequestPart("Resolution") String Resolution,
-            @RequestPart("WhiteBalance") String WhiteBalance
-            //@RequestPart("metadata") String metadata
+            @RequestPart("WhiteBalance") String WhiteBalance,
+            @RequestPart("size") String size
     ) throws IOException {
         List<CompletableFuture<Scalar>> completablescores;
         List<Integer> finalScores = new ArrayList<>();
+        TitleDto titleDto = objectMapper.readValue(titles, TitleDto.class);
 
-        TitleDto titleDto = objectMapper.readValue(titles,TitleDto.class);
-        //ThingMetadataDto thingMetadataDto2 = objectMapper.readValue(metadata, ThingMetadataDto.class);
-
-        logger.info("userId"+userId);
-        List<Double> FStop2 = objectMapper.readValue(FStop,new com.fasterxml.jackson.core.type.TypeReference<List<Double>>(){});
-        List<Integer> ISO2 = objectMapper.readValue(ISO,new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>(){});
-        List<Integer> ExposureTime2 = objectMapper.readValue(ExposureTime, new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>() {
-        });
-        List<String> GPSLatitude2 = objectMapper.readValue(GPSLatitude,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
-        List<String> GPSLongitude2 = objectMapper.readValue(GPSLongitude,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
-        List<String> RealResolution2 = objectMapper.readValue(RealResolution,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
-        List<String> Resolution2 = objectMapper.readValue(Resolution,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
-        List<String> WhiteBalance2 = objectMapper.readValue(WhiteBalance,new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
-
-        logger.info("FSTOP!!!!! "+GPSLatitude2.get(0));
+        List<Double> FStop2 = objectMapper.readValue(FStop, new com.fasterxml.jackson.core.type.TypeReference<List<Double>>() {});
+        List<Integer> ISO2 = objectMapper.readValue(ISO, new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>() {});
+        List<Integer> ExposureTime2 = objectMapper.readValue(ExposureTime, new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>() {});
+        List<String> GPSLatitude2 = objectMapper.readValue(GPSLatitude, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        List<String> GPSLongitude2 = objectMapper.readValue(GPSLongitude, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        List<String> RealResolution2 = objectMapper.readValue(RealResolution, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        List<String> Resolution2 = objectMapper.readValue(Resolution, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        List<String> WhiteBalance2 = objectMapper.readValue(WhiteBalance, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        List<String> size2 = objectMapper.readValue(size, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
 
         List<String> title = titleDto.getTitles();
-
-        //어떤 사용자가 올린 건지 계산
-        ThingImageMember InithingImageMember = new ThingImageMember();
         OauthMember uploadedUser = oauthService.findUploadUser(userId);
-        if(uploadedUser==null){
-            logger.info("user not found");
+        if (uploadedUser == null) {
             return ResponseEntity.badRequest().build();
         }
+        ThingImageMember InithingImageMember = new ThingImageMember();
         InithingImageMember.setUserThingId(uploadedUser);
-        List<CompletableFuture<String>> url =  new ArrayList<>();
 
         try {
             completablescores = brisqueService.getBrisqueAll(image);
-
             for (CompletableFuture<Scalar> cnow : completablescores) {
                 Scalar now = cnow.get();
                 double score = Math.round(now.get(0));
                 finalScores.add((100 - (int) score));
-
             }
-
         } catch (Exception e) {
             logger.error("Error calculating BRISQUE scores", e);
             return ResponseEntity.status(500).build();
         }
 
-
-
-        //사진 저장 로직, title, key, url, user 저장 -> brisque score 저장 X -> brisque 테이블에 연결되어 있기 떄문(중복 저장 X)
         ThingImageUploadDto thingImageUploadDto = new ThingImageUploadDto();
         thingImageUploadDto.setBigImageFiles(image);
         thingImageUploadDto.setSmallImageFiles(smallFiles);
@@ -128,16 +111,15 @@ public class BrisqueController {
         thingMetadataDto.setGPSLatitude(GPSLatitude2);
         thingMetadataDto.setRealResolution(RealResolution2);
         thingMetadataDto.setWhiteBalance(WhiteBalance2);
+        thingMetadataDto.setSize(size2);
 
-
-        url = smallFileService.uploadThingImages(thingImageUploadDto, thingMetadataDto);
-        //metadataService.saveMetaData(metadataDto,thingImageUploadDto.getThingImageMember());
+        smallFileService.uploadThingImages(thingImageUploadDto, thingMetadataDto);
 
         return ResponseEntity.ok(finalScores);
     }
 
-    //한개씩만 업로드 가능 -> 한개씩으로
     @PostMapping("/calculate/personBrisque")
+    @Transactional
     public ResponseEntity<List<Integer>> calPersonBrisque(
             @RequestPart("image") MultipartFile image,
             @RequestPart("cropData") String cropDataJson,
@@ -152,24 +134,22 @@ public class BrisqueController {
             @RequestPart("GPSLongitude") String GPSLongitude,
             @RequestPart("RealResolution") String RealResolution,
             @RequestPart("Resolution") String Resolution,
-            @RequestPart("WhiteBalance") String WhiteBalance
-    ) throws IOException{
+            @RequestPart("WhiteBalance") String WhiteBalance,
+            @RequestPart("size") String size
+    ) throws IOException {
         List<Integer> finalScores = new ArrayList<>();
-
-        //어떤 사용자가 올린 건지 계산
         OauthMember uploadedUser = oauthService.findUploadUser(userId);
-        if(uploadedUser==null){
-            logger.info("user not found");
+        if (uploadedUser == null) {
             return ResponseEntity.badRequest().build();
         }
+
+        TitleDto titleDto = objectMapper.readValue(titles, TitleDto.class);
+        List<String> title = titleDto.getTitles();
+
         double x = 0;
         double y = 0;
         double width = 0;
         double height = 0;
-
-        TitleDto titleDto = objectMapper.readValue(titles,TitleDto.class);
-        List<String> title = titleDto.getTitles();
-
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -179,57 +159,47 @@ public class BrisqueController {
             y = convertToDouble(cropData.get("y"));
             width = convertToDouble(cropData.get("width"));
             height = convertToDouble(cropData.get("height"));
-            System.out.println("x: "+x+ "y: "+y+"width: "+width);
-
             BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(image.getBytes()));
+            width = Math.min(width, originalImage.getWidth() - x);
+            height = Math.min(height, originalImage.getHeight() - y);
             BufferedImage croppedImage = originalImage.getSubimage((int) x, (int) y, (int) width, (int) height);
 
-            // 크롭된 이미지를 바이트 배열로 변환
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(croppedImage, fileType, baos); // 파일 확장자 사용
+            ImageIO.write(croppedImage, fileType, baos);
             byte[] croppedBytes = baos.toByteArray();
 
-            // 바이트 배열을 MultipartFile로 변환
             MultipartFile croppedMultipartFile = new MockMultipartFile("croppedImage", "croppedImage." + fileType, "image/" + fileType, croppedBytes);
-
             List<MultipartFile> croppedImages = new ArrayList<>();
             croppedImages.add(croppedMultipartFile);
 
             List<CompletableFuture<Scalar>> completablescores = brisqueService.getBrisqueAll(croppedImages);
-
             for (CompletableFuture<Scalar> cnow : completablescores) {
                 Scalar now = cnow.get();
                 double score = Math.round(now.get(0));
                 finalScores.add((100 - (int) score));
             }
-
         } catch (IOException e) {
             logger.error("Error reading image or parsing cropData", e);
             return ResponseEntity.status(500).body(null);
         } catch (Exception e) {
-            logger.info("Error calculating BRISQUE scores "+e);
+            logger.info("Error calculating BRISQUE scores " + e);
             return ResponseEntity.status(500).body(null);
         }
 
-        logger.info("X : "+x);
-        logger.info("Y : "+y);
-
-        List<CompletableFuture<String>> url =  new ArrayList<>();
-
-        //사진 저장 로직, title, key, url, user 저장 -> brisque score 저장 안하는 게 좋을 듯
-        PeopleImageUploadDto peopleImageUploadDto = new PeopleImageUploadDto();
         PeopleImageMember peopleImageMemberSave = new PeopleImageMember();
-
-        peopleImageUploadDto.setBigImageFiles(image);
-        peopleImageUploadDto.setSmallImageFiles(smallFiles);
-        peopleImageUploadDto.setOauthMember(uploadedUser);
-        peopleImageUploadDto.setImageTitle(title);
-        peopleImageUploadDto.setBrisqueScore(finalScores);
+        PeopleImageUploadDto peopleImageUploadDto = new PeopleImageUploadDto();
         peopleImageUploadDto.setX(x);
         peopleImageUploadDto.setY(y);
         peopleImageUploadDto.setWidth(width);
         peopleImageUploadDto.setHeight(height);
         peopleImageUploadDto.setFileType(fileType);
+        peopleImageUploadDto.setBigImageFiles(image);
+        peopleImageUploadDto.setSmallImageFiles(smallFiles);
+        peopleImageUploadDto.setOauthMember(uploadedUser);
+        peopleImageUploadDto.setImageTitle(title);
+        peopleImageUploadDto.setBrisqueScore(finalScores);
+        peopleImageMemberSave.setUserPeopleId(uploadedUser);
+        peopleImageUploadDto.setPeopleImageMember(peopleImageMemberSave);
 
         PeopleMetadataDto peopleMetadataDto = new PeopleMetadataDto();
         peopleMetadataDto.setISO(ISO);
@@ -240,16 +210,9 @@ public class BrisqueController {
         peopleMetadataDto.setGPSLatitude(GPSLatitude);
         peopleMetadataDto.setRealResolution(RealResolution);
         peopleMetadataDto.setWhiteBalance(WhiteBalance);
+        peopleMetadataDto.setSize(size);
 
-        peopleImageMemberSave.setUserPeopleId(uploadedUser);
-        peopleImageMemberRepository.save(peopleImageMemberSave);
-
-        peopleImageUploadDto.setPeopleImageMember(peopleImageMemberSave);
-
-        logger.info("height in Controller : "+peopleImageUploadDto.getPeopleImageMember().getHeight());
-
-
-        url = smallFileService.uploadPeopleImages(peopleImageUploadDto,peopleMetadataDto);
+        smallFileService.uploadPeopleImages(peopleImageUploadDto, peopleMetadataDto);
 
         return ResponseEntity.ok(finalScores);
     }
