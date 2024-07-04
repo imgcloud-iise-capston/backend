@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -72,6 +73,13 @@ public class BrisqueService {
         brisqueMember.setBrisqueScore(brisque);
         brisqueMemberRepository.save(brisqueMember);
 
+    }
+    public Optional<BrisqueMember> getBrisqueByPeopleImage(PeopleImageMember peopleImageMember) {
+        return brisqueMemberRepository.findBypeopleId(peopleImageMember);
+    }
+
+    public Optional<BrisqueMember> getBrisqueByThingImage(ThingImageMember thingImageMember) {
+        return brisqueMemberRepository.findBythingId(thingImageMember);
     }
 }
 

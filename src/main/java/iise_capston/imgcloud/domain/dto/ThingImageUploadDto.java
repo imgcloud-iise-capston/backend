@@ -22,4 +22,16 @@ public class ThingImageUploadDto {
     private List<String> imageTitle = new ArrayList<>();
     private OauthMember oauthMember;
     private List<Integer> brisqueScore = new ArrayList<>();
+
+    public ThingImageUploadDto(Long thingId, String smallImageUrl, String imageTitle, double brisqueScore) {
+        this.thingId = thingId;
+        this.smallImageUrl = smallImageUrl;
+        this.imageTitle = new ArrayList<>();
+        this.imageTitle.add(imageTitle);
+        this.brisqueScore = new ArrayList<>();
+        this.brisqueScore.add((int) brisqueScore);
+    }
+
+    private Long thingId;
+    private String smallImageUrl;
 }

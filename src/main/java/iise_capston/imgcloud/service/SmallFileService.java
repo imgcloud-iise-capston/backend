@@ -111,9 +111,10 @@ public class SmallFileService {
             String gpsLatitude = thingMetadataDto.getGPSLatitude().get(i);
             String gpsLongitude = thingMetadataDto.getGPSLongitude().get(i);
             String whiteBalance = thingMetadataDto.getWhiteBalance().get(i);
+            String size = thingMetadataDto.getSize().get(i);
 
             CompletableFuture<String> value = uploadThingImage(brisque, title, big, small, thingImage, i, fstop,iso,exposureTime,realResolution,resolution,gpsLatitude,
-                    gpsLongitude,whiteBalance);
+                    gpsLongitude,whiteBalance, size);
             resultList.add(value);
             i++;
         }
@@ -177,11 +178,12 @@ public class SmallFileService {
         String gpsLatitude = peopleMetadataDto.getGPSLatitude();
         String gpsLongitude = peopleMetadataDto.getGPSLongitude();
         String whiteBalance = peopleMetadataDto.getWhiteBalance();
+        String size = peopleMetadataDto.getSize();
 
         peopleImageMemberRepository.save(peopleImageMember);
         brisqueService.savePeopleBrisque(peopleImageMember,score);
         metadataService.savePeopleMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
-                gpsLongitude, whiteBalance, peopleImageMember);
+                gpsLongitude, whiteBalance, peopleImageMember, size);
 
 
         return CompletableFuture.completedFuture(image.getImageUrl());
@@ -192,7 +194,7 @@ public class SmallFileService {
     @Async
     public CompletableFuture<String> uploadThingImage(Integer score, String title, MultipartFile big, MultipartFile small, ThingImageMember image, int num,
                                                       Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
-                                                      String gpsLongitude, String whiteBalance) {
+                                                      String gpsLongitude, String whiteBalance, String size) {
         ThingImageMember thingImageMember = new ThingImageMember();
         thingImageMember.setUserThingId(image.getUserThingId());
 
@@ -234,7 +236,7 @@ public class SmallFileService {
         thingImageMemberRepository.save(thingImageMember);
         brisqueService.saveThingBrisque(thingImageMember, score);
         metadataService.saveThingMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
-                gpsLongitude, whiteBalance, thingImageMember);
+                gpsLongitude, whiteBalance, thingImageMember, size);
 
         return CompletableFuture.completedFuture(image.getImageUrl());
     }

@@ -28,4 +28,16 @@ public class PeopleImageUploadDto {
     private double width;
     private double height;
     private String fileType;
+
+    public PeopleImageUploadDto(Long peopleId, String smallImageUrl, String imageTitle, double brisqueScore) {
+        this.peopleId = peopleId;
+        this.smallImageUrl = smallImageUrl;
+        this.imageTitle = new ArrayList<>();
+        this.imageTitle.add(imageTitle);
+        this.brisqueScore = new ArrayList<>();
+        this.brisqueScore.add((int) brisqueScore);
+    }
+
+    private Long peopleId;
+    private String smallImageUrl;
 }

@@ -21,4 +21,5 @@ public class ThingMetadataDto {
     private List<String> RealResolution;
     private List<String> Resolution;
     private List<String> WhiteBalance;
+    private List<String> size;
 }
