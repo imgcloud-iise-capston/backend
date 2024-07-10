@@ -3,7 +3,9 @@ package iise_capston.imgcloud.controller;
 import iise_capston.imgcloud.member.OauthMember;
 import iise_capston.imgcloud.oauth.OauthServerType;
 import iise_capston.imgcloud.service.OauthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -37,5 +39,14 @@ public class OauthController {
     ){
         OauthMember login = oauthService.login(oauthServerType, code);
         return ResponseEntity.ok(login);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return ResponseEntity.ok("logout");
     }
 }
