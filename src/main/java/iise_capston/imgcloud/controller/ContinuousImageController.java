@@ -83,7 +83,7 @@ public class ContinuousImageController {
 
     @PostMapping("/calculate/continuousImage/people")
     public ResponseEntity<List<Integer>> calBrisquePeople(
-            @RequestPart("image") List<MultipartFile> images,
+            @RequestPart("images") List<MultipartFile> images,
             @RequestPart("cropData") String cropDataJson,
             @RequestPart("fileType") String fileType,
             @RequestHeader("userId") Long userId
