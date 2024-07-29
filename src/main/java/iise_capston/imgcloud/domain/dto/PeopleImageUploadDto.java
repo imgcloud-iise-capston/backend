@@ -36,6 +36,7 @@ public class PeopleImageUploadDto {
         this.imageTitle.add(imageTitle);
         this.brisqueScore = new ArrayList<>();
         this.brisqueScore.add((int) brisqueScore);
+        this.imageUrl = imageUrl;
     }
 
     private Long peopleId;
