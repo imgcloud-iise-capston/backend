@@ -36,6 +36,7 @@ public class ImageLoadController {
                     image.getPeopleId(),
                     image.getSmallImageUrl(),
                     image.getImageTitle(),
+                    image.getImageUrl(),
                     brisqueScore
             );
         }).collect(Collectors.toList());
@@ -56,6 +57,7 @@ public class ImageLoadController {
                     image.getThingId(),
                     image.getSmallImageUrl(),
                     image.getImageTitle(),
+                    image.getImageUrl(),
                     brisqueScore
             );
         }).collect(Collectors.toList());

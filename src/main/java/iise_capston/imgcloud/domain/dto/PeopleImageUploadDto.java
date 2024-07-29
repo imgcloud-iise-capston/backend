@@ -29,7 +29,7 @@ public class PeopleImageUploadDto {
     private double height;
     private String fileType;
 
-    public PeopleImageUploadDto(Long peopleId, String smallImageUrl, String imageTitle, double brisqueScore) {
+    public PeopleImageUploadDto(Long peopleId, String smallImageUrl, String imageTitle, String imageUrl, double brisqueScore) {
         this.peopleId = peopleId;
         this.smallImageUrl = smallImageUrl;
         this.imageTitle = new ArrayList<>();
@@ -40,4 +40,5 @@ public class PeopleImageUploadDto {
 
     private Long peopleId;
     private String smallImageUrl;
+    private String imageUrl;
 }

@@ -61,7 +61,8 @@ public class BrisqueController {
             @RequestPart("RealResolution") String RealResolution,
             @RequestPart("Resolution") String Resolution,
             @RequestPart("WhiteBalance") String WhiteBalance,
-            @RequestPart("size") String size
+            @RequestPart("size") String size,
+            @RequestPart("metaScore") String metaScore
     ) throws IOException {
         List<CompletableFuture<Scalar>> completablescores;
         List<Integer> finalScores = new ArrayList<>();
@@ -82,6 +83,8 @@ public class BrisqueController {
         List<String> size2 = objectMapper.readValue(size, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
 
         List<String> title = titleDto.getTitles();
+
+        List<Integer> metaScore2 = objectMapper.readValue(metaScore,new com.fasterxml.jackson.core.type.TypeReference<List<Integer>>() {});
 
         //어떤 사용자가 올린 건지 계산
         ThingImageMember InithingImageMember = new ThingImageMember();
@@ -129,10 +132,14 @@ public class BrisqueController {
         thingMetadataDto.setRealResolution(RealResolution2);
         thingMetadataDto.setWhiteBalance(WhiteBalance2);
         thingMetadataDto.setSize(size2);
+        thingMetadataDto.setMetaScore(metaScore2);
 
 
-        url = smallFileService.uploadThingImages(thingImageUploadDto, thingMetadataDto);
+        List<CompletableFuture<Long>> metaId = new ArrayList<>();
+        metaId = smallFileService.uploadThingImages(thingImageUploadDto, thingMetadataDto);
         //metadataService.saveMetaData(metadataDto,thingImageUploadDto.getThingImageMember());
+
+
 
         return ResponseEntity.ok(finalScores);
     }
@@ -155,7 +162,8 @@ public class BrisqueController {
             @RequestPart("RealResolution") String RealResolution,
             @RequestPart("Resolution") String Resolution,
             @RequestPart("WhiteBalance") String WhiteBalance,
-            @RequestPart("size") String size
+            @RequestPart("size") String size,
+            @RequestPart("metaScore") Integer metaScore
     ) throws IOException {
         List<Integer> finalScores = new ArrayList<>();
         OauthMember uploadedUser = oauthService.findUploadUser(userId);
@@ -231,6 +239,7 @@ public class BrisqueController {
         peopleMetadataDto.setRealResolution(RealResolution);
         peopleMetadataDto.setWhiteBalance(WhiteBalance);
         peopleMetadataDto.setSize(size);
+        peopleMetadataDto.setMetaScore(metaScore);
 
         smallFileService.uploadPeopleImages(peopleImageUploadDto, peopleMetadataDto);
 

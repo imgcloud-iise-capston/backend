@@ -49,6 +49,9 @@ public class MetadataMember {
     @Column
     private String size;
 
+    @Column
+    private int metaScore;
+
     @Column(nullable = false)
     private int pixelRow;
     @Column(nullable = false)

@@ -61,8 +61,8 @@ public class SmallFileService {
     }
 
     //img 여러개 처리
-    public List<CompletableFuture<String>> uploadPeopleImages(PeopleImageUploadDto peopleImageUploadDto, PeopleMetadataDto peopleMetadataDto){
-        List<CompletableFuture<String>> resultList = new ArrayList<>();
+    public List<CompletableFuture<Long>> uploadPeopleImages(PeopleImageUploadDto peopleImageUploadDto, PeopleMetadataDto peopleMetadataDto){
+        List<CompletableFuture<Long>> resultList = new ArrayList<>();
 
         int i=0;
 
@@ -78,7 +78,7 @@ public class SmallFileService {
         double width = peopleImageUploadDto.getWidth();
         double height = peopleImageUploadDto.getHeight();
 
-        CompletableFuture<String> value = uploadPeopleImage(brisque, title,big, small, peopleImage, x, y, width, height, peopleMetadataDto);
+        CompletableFuture<Long> value = uploadPeopleImage(brisque, title,big, small, peopleImage, x, y, width, height, peopleMetadataDto);
         resultList.add(value);
 
 //        for(MultipartFile big: peopleImageUploadDto.getBigImageFiles()){
@@ -93,8 +93,8 @@ public class SmallFileService {
 
         return resultList;
     }
-    public List<CompletableFuture<String>> uploadThingImages(ThingImageUploadDto thingImageUploadDto, ThingMetadataDto thingMetadataDto){
-        List<CompletableFuture<String>> resultList = new ArrayList<>();
+    public List<CompletableFuture<Long>> uploadThingImages(ThingImageUploadDto thingImageUploadDto, ThingMetadataDto thingMetadataDto){
+        List<CompletableFuture<Long>> resultList = new ArrayList<>();
 
         int i=0;
         for(MultipartFile big: thingImageUploadDto.getBigImageFiles()){
@@ -112,9 +112,10 @@ public class SmallFileService {
             String gpsLongitude = thingMetadataDto.getGPSLongitude().get(i);
             String whiteBalance = thingMetadataDto.getWhiteBalance().get(i);
             String size = thingMetadataDto.getSize().get(i);
+            Integer metaScore = thingMetadataDto.getMetaScore().get(i);
 
-            CompletableFuture<String> value = uploadThingImage(brisque, title, big, small, thingImage, i, fstop,iso,exposureTime,realResolution,resolution,gpsLatitude,
-                    gpsLongitude,whiteBalance, size);
+            CompletableFuture<Long> value = uploadThingImage(brisque, title, big, small, thingImage, i, fstop,iso,exposureTime,realResolution,resolution,gpsLatitude,
+                    gpsLongitude,whiteBalance, size, metaScore);
             resultList.add(value);
             i++;
         }
@@ -125,7 +126,7 @@ public class SmallFileService {
     //img 1개
     @Transactional
     @Async
-    public CompletableFuture<String> uploadPeopleImage(Integer score, String title, MultipartFile big, MultipartFile small, PeopleImageMember image, double x, double y,
+    public CompletableFuture<Long> uploadPeopleImage(Integer score, String title, MultipartFile big, MultipartFile small, PeopleImageMember image, double x, double y,
                                                        double width, double height, PeopleMetadataDto peopleMetadataDto){
         PeopleImageMember peopleImageMember = new PeopleImageMember();
         //peopleImageMember = peopleImageMemberRepository.findById(image.getPeopleId()).get();
@@ -179,22 +180,23 @@ public class SmallFileService {
         String gpsLongitude = peopleMetadataDto.getGPSLongitude();
         String whiteBalance = peopleMetadataDto.getWhiteBalance();
         String size = peopleMetadataDto.getSize();
+        Integer metaScore = peopleMetadataDto.getMetaScore();
 
         peopleImageMemberRepository.save(peopleImageMember);
         brisqueService.savePeopleBrisque(peopleImageMember,score);
-        metadataService.savePeopleMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
-                gpsLongitude, whiteBalance, peopleImageMember, size);
+        long metaId = metadataService.savePeopleMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
+                gpsLongitude, whiteBalance, peopleImageMember, size, metaScore);
 
 
-        return CompletableFuture.completedFuture(image.getImageUrl());
+        return CompletableFuture.completedFuture(metaId);
     }
 
 
     @Transactional
     @Async
-    public CompletableFuture<String> uploadThingImage(Integer score, String title, MultipartFile big, MultipartFile small, ThingImageMember image, int num,
+    public CompletableFuture<Long> uploadThingImage(Integer score, String title, MultipartFile big, MultipartFile small, ThingImageMember image, int num,
                                                       Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
-                                                      String gpsLongitude, String whiteBalance, String size) {
+                                                      String gpsLongitude, String whiteBalance, String size, Integer metaScore) {
         ThingImageMember thingImageMember = new ThingImageMember();
         thingImageMember.setUserThingId(image.getUserThingId());
 
@@ -235,10 +237,10 @@ public class SmallFileService {
 
         thingImageMemberRepository.save(thingImageMember);
         brisqueService.saveThingBrisque(thingImageMember, score);
-        metadataService.saveThingMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
-                gpsLongitude, whiteBalance, thingImageMember, size);
+        long metaId = metadataService.saveThingMetaData(fstop,iso, exposureTime, realResolution, resolution, gpsLatitude,
+                gpsLongitude, whiteBalance, thingImageMember, size, metaScore);
 
-        return CompletableFuture.completedFuture(image.getImageUrl());
+        return CompletableFuture.completedFuture(metaId);
     }
 
 

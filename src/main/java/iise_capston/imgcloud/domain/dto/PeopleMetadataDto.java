@@ -21,4 +21,5 @@ public class PeopleMetadataDto {
     private String Resolution;
     private String WhiteBalance;
     private String size;
+    private Integer metaScore;
 }

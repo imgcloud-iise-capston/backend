@@ -1,7 +1,5 @@
 package iise_capston.imgcloud.service;
 
-import iise_capston.imgcloud.domain.dto.PeopleMetadataDto;
-import iise_capston.imgcloud.domain.dto.ThingMetadataDto;
 import iise_capston.imgcloud.domain.repository.MetadataMemberRepository;
 import iise_capston.imgcloud.domain.repository.PeopleImageMemberRepository;
 import iise_capston.imgcloud.domain.repository.ThingImageMemberRepository;
@@ -19,8 +17,8 @@ public class MetadataService {
     private final ThingImageMemberRepository thingImageMemberRepository;
     private final PeopleImageMemberRepository peopleImageMemberRepository;
 
-    public void saveThingMetaData(Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
-                             String gpsLongitude, String whiteBalance, ThingImageMember thingImageMember, String size){
+    public long saveThingMetaData(Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
+                             String gpsLongitude, String whiteBalance, ThingImageMember thingImageMember, String size, Integer metaScore){
         MetadataMember metadataMember = new MetadataMember();
         if(iso==null){
             metadataMember.setIso(0);
@@ -46,15 +44,18 @@ public class MetadataService {
         metadataMember.setRealResolution(realResolution);
         metadataMember.setWhiteBalance(whiteBalance);
         metadataMember.setSize(size);
+        metadataMember.setMetaScore(metaScore);
 
         ThingImageMember thingSave = thingImageMemberRepository.findById(thingImageMember.getThingId()).get();
 
         metadataMember.setThingId(thingSave);
 
         metadataMemberRepository.save(metadataMember);
+
+        return metadataMember.getMetaDataId();
     }
-    public void savePeopleMetaData(Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
-                             String gpsLongitude, String whiteBalance, PeopleImageMember peopleImageMember, String size){
+    public long savePeopleMetaData(Double fstop,Integer iso, Integer exposureTime, String realResolution, String resolution, String gpsLatitude,
+                             String gpsLongitude, String whiteBalance, PeopleImageMember peopleImageMember, String size, Integer metaScore){
         MetadataMember metadataMember = new MetadataMember();
         metadataMember.setIso(iso);
         metadataMember.setGpsLatitude(gpsLatitude);
@@ -65,12 +66,15 @@ public class MetadataService {
         metadataMember.setRealResolution(realResolution);
         metadataMember.setWhiteBalance(whiteBalance);
         metadataMember.setSize(size);
+        metadataMember.setMetaScore(metaScore);
 
         PeopleImageMember peopleImage = peopleImageMemberRepository.findById(peopleImageMember.getPeopleId()).get();
 
         metadataMember.setPeopleId(peopleImage);
 
         metadataMemberRepository.save(metadataMember);
+
+        return metadataMember.getMetaDataId();
     }
 
 }

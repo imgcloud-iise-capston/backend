@@ -22,4 +22,5 @@ public class ThingMetadataDto {
     private List<String> Resolution;
     private List<String> WhiteBalance;
     private List<String> size;
+    private List<Integer> metaScore;
 }

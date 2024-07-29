@@ -23,15 +23,17 @@ public class ThingImageUploadDto {
     private OauthMember oauthMember;
     private List<Integer> brisqueScore = new ArrayList<>();
 
-    public ThingImageUploadDto(Long thingId, String smallImageUrl, String imageTitle, double brisqueScore) {
+    public ThingImageUploadDto(Long thingId, String smallImageUrl, String imageTitle, String imageUrl, double brisqueScore) {
         this.thingId = thingId;
         this.smallImageUrl = smallImageUrl;
         this.imageTitle = new ArrayList<>();
         this.imageTitle.add(imageTitle);
         this.brisqueScore = new ArrayList<>();
         this.brisqueScore.add((int) brisqueScore);
+        this.imageUrl = imageUrl;
     }
 
     private Long thingId;
     private String smallImageUrl;
+    private String imageUrl;
 }
