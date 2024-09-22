@@ -45,6 +45,91 @@ public class BrisqueController {
     private final PeopleImageMemberRepository peopleImageMemberRepository;
     Logger logger = LoggerFactory.getLogger(BrisqueController.class);
 
+
+    @PostMapping("/calculate/transformed/person")
+    public ResponseEntity<Integer> calTransformedBrisque(
+            @RequestPart("image") MultipartFile image,
+            @RequestPart("imageId") Long imageId,
+            @RequestPart("fileType") String fileType
+    )throws IOException{
+
+        PeopleImageMember peopleImageMember = peopleImageMemberRepository.findByUserPeopleId_UserId(imageId).get(0);
+
+        double x = 0;
+        double y = 0;
+        double width = 0;
+        double height = 0;
+
+        int finalScore=0;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            //Map<String, Object> cropData = objectMapper.readValue(cropDataJson, Map.class);
+
+//            x = convertToDouble(cropData.get("x"));
+//            y = convertToDouble(cropData.get("y"));
+//            width = convertToDouble(cropData.get("width"));
+//            height = convertToDouble(cropData.get("height"));
+
+            x = peopleImageMember.getX();
+            y = peopleImageMember.getY();
+            width = peopleImageMember.getWidth();
+            height = peopleImageMember.getHeight();
+
+            BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(image.getBytes()));
+            width = Math.min(width, originalImage.getWidth() - x);
+            height = Math.min(height, originalImage.getHeight() - y);
+            BufferedImage croppedImage = originalImage.getSubimage((int) x, (int) y, (int) width, (int) height);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(croppedImage, fileType, baos);
+            byte[] croppedBytes = baos.toByteArray();
+
+            MultipartFile croppedMultipartFile = new MockMultipartFile("croppedImage", "croppedImage." + fileType, "image/" + fileType, croppedBytes);
+            List<MultipartFile> croppedImages = new ArrayList<>();
+            croppedImages.add(croppedMultipartFile);
+
+            List<CompletableFuture<Scalar>> completablescores = brisqueService.getBrisqueAll(croppedImages);
+            for (CompletableFuture<Scalar> cnow : completablescores) {
+                Scalar now = cnow.get();
+                double score = Math.round(now.get(0));
+                finalScore = 100 - (int) score;
+            }
+        } catch (IOException e) {
+            logger.error("Error reading image or parsing cropData", e);
+            return ResponseEntity.status(500).body(null);
+        } catch (Exception e) {
+            logger.info("Error calculating BRISQUE scores " + e);
+            return ResponseEntity.status(500).body(null);
+        }
+        return ResponseEntity.ok(finalScore);
+    }
+
+    @PostMapping("/calculate/transformed/thing")
+    public ResponseEntity<Integer> calTransformedThingBri(
+            @RequestPart("image") MultipartFile image
+    ){
+        List<MultipartFile> listImage = new ArrayList<>();
+        listImage.add(image);
+
+        CompletableFuture<Scalar> completablescores;
+        int finalScore=0;
+
+        try {
+            completablescores = brisqueService.getBrisqueAll(listImage).get(0);
+            Scalar now = completablescores.get();
+            double score = Math.round(now.get(0));
+            finalScore = 100 - (int)score;
+
+        } catch (Exception e) {
+            logger.error("Error calculating BRISQUE scores", e);
+            return ResponseEntity.status(500).build();
+        }
+
+        return ResponseEntity.ok(finalScore);
+    }
+
+
     //Thing 점수 cal + img 저장
     //title 중복이어도 ok -> key, brisque에 대한 중복 처리 완료
     @PostMapping("/calculate/brisque")

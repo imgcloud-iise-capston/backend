@@ -39,7 +39,7 @@ public class UrlToImageController {
             @RequestParam("id") Long id,
             @RequestParam("detail") String detail) throws IOException{
 
-        logger.info(detail);
+
         if(detail.equals("person")){
             PeopleImageMember peopleImageMember = peopleImageMemberRepository.findById(id).get();
             String path = peopleImageMember.getImageUrl();

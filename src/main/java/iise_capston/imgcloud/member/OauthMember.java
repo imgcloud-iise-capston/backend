@@ -31,6 +31,9 @@ public class OauthMember {
     @Column
     private String email;
 
+    @Column
+    private boolean payment;
+
     @OneToMany(mappedBy = "userPeopleId")
     private List<PeopleImageMember> userPeople = new ArrayList<>();
 
