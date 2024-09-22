@@ -10,4 +10,6 @@ public interface PeopleImageMemberRepository extends JpaRepository<PeopleImageMe
     Optional<PeopleImageMember> findByimageTitle(String title);
 
     List<PeopleImageMember> findByUserPeopleId_UserId(Long userId);
+
+    Optional<PeopleImageMember> findByPeopleId(Long peopleId);
 }
