@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface OauthMemberRepository extends JpaRepository<OauthMember,Long> {
     Optional<OauthMember> findByemail(String email);
+    Optional<OauthMember> findByUserId(Long userId);
 }
