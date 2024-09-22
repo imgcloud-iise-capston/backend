@@ -15,6 +15,7 @@ import org.bytedeco.opencv.opencv_core.Scalar;
 import org.objectweb.asm.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
@@ -46,14 +47,15 @@ public class BrisqueController {
     Logger logger = LoggerFactory.getLogger(BrisqueController.class);
 
 
-    @PostMapping("/calculate/transformed/person")
+    @PostMapping(value = "/calculate/transformed/person")
     public ResponseEntity<Integer> calTransformedBrisque(
             @RequestPart("image") MultipartFile image,
             @RequestPart("imageId") Long imageId,
             @RequestPart("fileType") String fileType
     )throws IOException{
 
-        PeopleImageMember peopleImageMember = peopleImageMemberRepository.findByUserPeopleId_UserId(imageId).get(0);
+        PeopleImageMember peopleImageMember = peopleImageMemberRepository.findByPeopleId(imageId).get();
+
 
         double x = 0;
         double y = 0;
@@ -64,18 +66,15 @@ public class BrisqueController {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            //Map<String, Object> cropData = objectMapper.readValue(cropDataJson, Map.class);
-
-//            x = convertToDouble(cropData.get("x"));
-//            y = convertToDouble(cropData.get("y"));
-//            width = convertToDouble(cropData.get("width"));
-//            height = convertToDouble(cropData.get("height"));
+           // Map<String, Object> cropData = objectMapper.readValue(cropDataJson, Map.class);
 
             x = peopleImageMember.getX();
             y = peopleImageMember.getY();
             width = peopleImageMember.getWidth();
             height = peopleImageMember.getHeight();
 
+
+            //BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(image));
             BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(image.getBytes()));
             width = Math.min(width, originalImage.getWidth() - x);
             height = Math.min(height, originalImage.getHeight() - y);
