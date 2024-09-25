@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,21 +53,21 @@ public class BrisqueController {
             @RequestPart("image") MultipartFile image,
             @RequestPart("imageId") Long imageId,
             @RequestPart("fileType") String fileType
-    )throws IOException{
+    )throws IOException {
 
         PeopleImageMember peopleImageMember = peopleImageMemberRepository.findByPeopleId(imageId).get();
 
+        int finalScores = 0;
 
         double x = 0;
         double y = 0;
         double width = 0;
         double height = 0;
 
-        int finalScore=0;
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-           // Map<String, Object> cropData = objectMapper.readValue(cropDataJson, Map.class);
+            // Map<String, Object> cropData = objectMapper.readValue(cropDataJson, Map.class);
 
             x = peopleImageMember.getX();
             y = peopleImageMember.getY();
@@ -74,15 +75,20 @@ public class BrisqueController {
             height = peopleImageMember.getHeight();
 
 
-            //BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(image));
+            System.out.println(x + " " + y + " " + width + " " + height);
             BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(image.getBytes()));
             width = Math.min(width, originalImage.getWidth() - x);
             height = Math.min(height, originalImage.getHeight() - y);
             BufferedImage croppedImage = originalImage.getSubimage((int) x, (int) y, (int) width, (int) height);
 
+            int len = fileType.length();
+            fileType = fileType.substring(1,len-1);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(croppedImage, fileType, baos);
+
             byte[] croppedBytes = baos.toByteArray();
+
 
             MultipartFile croppedMultipartFile = new MockMultipartFile("croppedImage", "croppedImage." + fileType, "image/" + fileType, croppedBytes);
             List<MultipartFile> croppedImages = new ArrayList<>();
@@ -92,7 +98,7 @@ public class BrisqueController {
             for (CompletableFuture<Scalar> cnow : completablescores) {
                 Scalar now = cnow.get();
                 double score = Math.round(now.get(0));
-                finalScore = 100 - (int) score;
+                finalScores = (100 - (int) score);
             }
         } catch (IOException e) {
             logger.error("Error reading image or parsing cropData", e);
@@ -101,7 +107,7 @@ public class BrisqueController {
             logger.info("Error calculating BRISQUE scores " + e);
             return ResponseEntity.status(500).body(null);
         }
-        return ResponseEntity.ok(finalScore);
+        return ResponseEntity.ok(finalScores);
     }
 
     @PostMapping("/calculate/transformed/thing")
