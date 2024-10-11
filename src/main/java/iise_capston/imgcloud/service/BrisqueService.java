@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 import java.nio.ByteBuffer;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class BrisqueService {
     @Transactional
     public CompletableFuture<Scalar> getBrisqueOne(MultipartFile picture) throws IOException {
 
+        long startTime = System.currentTimeMillis(); // 시작 시간 기록
         byte[]data = picture.getBytes();
         ByteBuffer dataByte = ByteBuffer.wrap(data);
 
@@ -45,6 +47,9 @@ public class BrisqueService {
 
         QualityBRISQUE brisque = QualityBRISQUE.create(modelPath,rangePath);
         Scalar brisqueScore = brisque.compute(pic);
+
+        long endTime = System.currentTimeMillis(); // 끝나는 시간 기록
+        System.out.println("Execution time: " + (endTime - startTime) + " ms"); // 실행 시간 출력
 
         return CompletableFuture.completedFuture(brisqueScore);
     }
