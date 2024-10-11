@@ -55,6 +55,9 @@ public class BrisqueController {
             @RequestPart("fileType") String fileType
     )throws IOException {
 
+        long startTime = System.currentTimeMillis();
+
+
         PeopleImageMember peopleImageMember = peopleImageMemberRepository.findByPeopleId(imageId).get();
 
         int finalScores = 0;
@@ -107,6 +110,10 @@ public class BrisqueController {
             logger.info("Error calculating BRISQUE scores " + e);
             return ResponseEntity.status(500).body(null);
         }
+
+        long endTime = System.currentTimeMillis(); // 끝나는 시간 기록
+        System.out.println("Person Time : " + (endTime - startTime) + " ms"); // 실행 시간 출력
+
         return ResponseEntity.ok(finalScores);
     }
 
@@ -114,6 +121,9 @@ public class BrisqueController {
     public ResponseEntity<Integer> calTransformedThingBri(
             @RequestPart("image") MultipartFile image
     ){
+
+        long startTime = System.currentTimeMillis(); // 끝나는 시간 기록
+
         List<MultipartFile> listImage = new ArrayList<>();
         listImage.add(image);
 
@@ -131,6 +141,8 @@ public class BrisqueController {
             return ResponseEntity.status(500).build();
         }
 
+        long endTime = System.currentTimeMillis(); // 끝나는 시간 기록
+        System.out.println("Thing  time: " + (endTime - startTime) + " ms"); // 실행 시간 출력
         return ResponseEntity.ok(finalScore);
     }
 
